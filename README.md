@@ -1,6 +1,8 @@
 # Chromium-GOST PowerShell Installer
 
-Минимальный установщик Chromium-GOST для локального запуска на Windows x64.
+PowerShell-скрипт для Windows x64. Он скачивает последний опубликованный стабильный релиз Chromium-GOST с GitHub, проверяет SHA-256 и устанавливает его на компьютер.
+
+Источник релизов: [deemru/Chromium-Gost](https://github.com/deemru/Chromium-Gost/releases).
 
 ## Запуск
 
@@ -11,7 +13,9 @@ Set-ExecutionPolicy -Scope Process Bypass
 .\Install-ChromiumGost.ps1
 ```
 
-Закреплённая версия должна использовать SHA-256 из GitHub release:
+Без `-Version` скрипт использует GitHub API `releases/latest`. Если такая же версия уже установлена, повторная установка не выполняется.
+
+Для повторяемой установки укажите версию и SHA-256 соответствующего GitHub-релиза:
 
 ```powershell
 .\Install-ChromiumGost.ps1 `
@@ -25,6 +29,8 @@ Set-ExecutionPolicy -Scope Process Bypass
 - `-LogPath C:\Logs\chromium-gost.log` — писать журнал в файл;
 - `-WhatIf` — получить сведения о релизе без скачивания и установки.
 
-При первом запуске скрипт регистрирует задачу Windows Планировщика `Chromium-GOST daily update`: ежедневный запуск около 03:00 со случайной задержкой до 30 минут. Задача работает от имени `SYSTEM`, хранит копию скрипта в `C:\ProgramData\Chromium-Gost\` и пишет журнал в `C:\ProgramData\Chromium-Gost\update.log`.
+При первом обычном запуске скрипт регистрирует задачу Планировщика Windows `Chromium-GOST daily update`. Она запускается ежедневно около 03:00 со случайной задержкой до 30 минут, работает от имени `SYSTEM` и каждый раз проверяет последний опубликованный стабильный релиз. Копия скрипта хранится в `C:\ProgramData\Chromium-Gost\`, журнал — в `C:\ProgramData\Chromium-Gost\update.log`.
 
-Скрипт использует GitHub API и asset `windows-amd64-installer.exe`, проверяет SHA-256, принудительно закрывает процессы Chromium перед обновлением и подтверждает установленную версию. Поддерживаются только Windows x64 и запуск с правами администратора.
+Закрепление через `-Version` действует для текущего запуска. Зарегистрированная задача запускает скрипт без `-Version` и поэтому при следующем запуске снова использует последний релиз.
+
+Скрипт выбирает asset `windows-amd64-installer.exe`, проверяет SHA-256 до запуска установщика, закрывает процессы Chromium перед обновлением и подтверждает установленную версию после установки. Поддерживаются только Windows x64 и запуск с правами администратора.
